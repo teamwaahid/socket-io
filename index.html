@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.io | Wahid Hasan</title>
+    <script src="/socket.io/socket.io.js"></script>
+    
+</head>
+<body>
+    <ul id="ul_msg"></ul>
+    <form id="msg_form">
+        <label for="">Type Your Text Here</label>
+        <br>
+        <input type="text">
+        <button type="submit">submit</button>
+    </form>
+    <form id="name_form">
+        <label for="">Type Your Name Here</label>
+        <br>
+        <input type="text">
+        <button type="submit">submit</button>
+    </form>
+    
+    <script>
+        const msg_form = document.getElementById('msg_form')
+        msg_form.hidden=true
+        const mname_form = document.getElementById('name_form')
+        const ul_msg = document.getElementById('ul_msg')
+        
+        var socket = io();
+        /* setTimeout(()=>{
+            socket.emit("new-msg", "hi",[0,1,1,2,3], 11, true)
+        }, 3000) */
+
+        socket.on("received-msg", (msg, name)=>{
+            displayMsg(msg, name)
+            })
+
+        socket.on('getName', ()=>{
+            mname_form.addEventListener("submit",(e)=>{
+                e.preventDefault()
+                const name = mname_form[0].value
+                if (!name) return
+                socket.emit('setName', name, ()=>{
+                    msg_form.hidden=false
+                    mname_form.hidden=true
+                })
+            })
+        })
+
+        msg_form.addEventListener('submit', (e)=>{
+            e.preventDefault()
+            const msg = msg_form[0].value
+            if(!msg) return
+            socket.emit('new-msg', msg, ()=>{
+                displayMsg(msg, "You")
+                msg_form[0].value = ''
+            })
+        })
+
+        function displayMsg(msg, name) {
+            const li = document.createElement('li')
+            li.textContent = name + ": " + msg
+            ul_msg.appendChild(li)
+        }
+
+    </script>
+</body>
+</html>
